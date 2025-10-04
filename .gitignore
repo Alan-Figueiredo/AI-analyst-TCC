@@ -1,0 +1,22 @@
+# Ambiente Virtual
+env/
+venv/
+.venv/
+
+# Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos de vídeo e logs
+*.mp4
+*.avi
+*.log
+
+# Configurações de IDEs
+.vscode/
+.idea/
+
+# Outros
+.DS_Store
