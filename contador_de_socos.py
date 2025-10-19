@@ -1,111 +1,210 @@
 import cv2
 import numpy as np
+import time
 from ultralytics import YOLO
 
-# Funções e Constantes
-INDICE_OMBRO_ESQ = 5; INDICE_COTOVELO_ESQ = 7; INDICE_PULSO_ESQ = 9
-INDICE_OMBRO_DIR = 6; INDICE_COTOVELO_DIR = 8; INDICE_PULSO_DIR = 10
+# === MODELOS ===
+model_pose = YOLO("yolov8m-pose.pt")
+model_obj = YOLO("best.pt") # Usando seu modelo treinado!
 
-def calcular_angulo(a, b, c):
-    a = np.array(a); b = np.array(b); c = np.array(c)
-    radians = np.arctan2(c[1] - b[1], c[0] - b[0]) - np.arctan2(a[1] - b[1], a[0] - b[0])
-    angle = np.abs(radians * 180.0 / np.pi)
-    if angle > 180.0: angle = 360 - angle
-    return angle
-
-# CONFIGURAÇÃO
-model = YOLO('yolov8m-pose.pt')
+# === CONFIGURAÇÕES ===
 NOME_DO_VIDEO = "videoteste.mp4"
 video = cv2.VideoCapture(NOME_DO_VIDEO)
+fps = video.get(cv2.CAP_PROP_FPS)
+if fps == 0:
+    fps = 30
 
-# Parâmetros da lógica de contagem
-LIMIAR_CONFIANCA_PONTO = 0.5 
-ANGULO_ESTICADO = 115 
-ANGULO_RECOLHIDO = 90
+# --- PARÂMETRO DE OTIMIZAÇÃO ---
+# Processa a IA a cada N quadros. Um valor entre 2 e 4 é ideal.
+FREQUENCIA_IA = 3
+# --------------------------------
 
-# Variáveis de estado e contagem
-contador_esq = 0
-estado_esq = "RECOLHIDO"
-contador_dir = 0
-estado_dir = "RECOLHIDO"
+# === ÍNDICES DE KEYPOINTS (YOLOv8 Pose) ===
+INDICE_QUEIXO = 0
+LIMIAR_CONFIANCA = 0.55
 
-if not video.isOpened():
-    print(f"Erro ao abrir o arquivo de vídeo: {NOME_DO_VIDEO}")
-    exit()
+# === PARÂMETROS DE DETECÇÃO ===
+DIST_QUEIXO_INICIO = 90
+DIST_QUEIXO_RESET = 75
+IMPACT_PADDING = 15
+DISTANCIA_PROJECAO_MAO = 40
 
-# LOOP PRINCIPAL
+# === VARIÁVEIS DE ESTADO E TRACKING ===
+dados_socos = []
+estado_braços = {
+    "direito": {"movendo": False, "inicio": 0, "p_inicial": None, "impactado": False},
+    "esquerdo": {"movendo": False, "inicio": 0, "p_inicial": None, "impactado": False}
+}
+ultima_posicao_saco = None
+frames_sem_deteccao = 0
+LIMITE_FRAMES_PERDIDOS = 10
+# --- Novas variáveis para guardar as últimas posições conhecidas ---
+keypoints_recentes = None
+saco_box_recente = None
+# ------------------------------------------------------------------
+
+def detectar_saco(frame, modelo):
+    result_obj = modelo(frame, verbose=False, conf=0.50)
+    for det in result_obj[0].boxes:
+        nome = modelo.names[int(det.cls)]
+        if "saco_pancada" in nome.lower():
+            x1, y1, x2, y2 = map(int, det.xyxy[0])
+            return (x1, y1, x2, y2)
+    return None
+
+# === LOOP PRINCIPAL ===
+print("▶️ Iniciando análise de vídeo...")
+frame_id = 0
 while True:
-    success, img = video.read()
-    if not success:
-        print("Fim do vídeo.")
-        break
-
-    results = model(img, stream=True, verbose=False, conf=0.6)
-
-    for r in results:
-        annotated_frame = r.plot()
-
-        if r.keypoints and len(r.keypoints.xy) > 0:
-            keypoints = r.keypoints.xy[0].cpu().numpy()
-            confiancas = r.keypoints.conf[0].cpu().numpy()
-
-            try:
-                # Lógica do Braço Esquerdo
-                conf_ombro_esq = confiancas[INDICE_OMBRO_ESQ]
-                conf_cotovelo_esq = confiancas[INDICE_COTOVELO_ESQ]
-                conf_pulso_esq = confiancas[INDICE_PULSO_ESQ]
-
-                if conf_ombro_esq > LIMIAR_CONFIANCA_PONTO and conf_cotovelo_esq > LIMIAR_CONFIANCA_PONTO and conf_pulso_esq > LIMIAR_CONFIANCA_PONTO:
-                    ombro_esq = keypoints[INDICE_OMBRO_ESQ]
-                    cotovelo_esq = keypoints[INDICE_COTOVELO_ESQ]
-                    pulso_esq = keypoints[INDICE_PULSO_ESQ]
-                    angulo_esq = calcular_angulo(ombro_esq, cotovelo_esq, pulso_esq)
-                    
-                    # LINHA READICIONADA: Desenha o ângulo do braço esquerdo
-                    cv2.putText(annotated_frame, f"{int(angulo_esq)}", tuple(cotovelo_esq.astype(int)), 
-                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
-                    
-                    if angulo_esq > ANGULO_ESTICADO and estado_esq == 'RECOLHIDO':
-                        estado_esq = 'ESTICADO'
-                    if angulo_esq < ANGULO_RECOLHIDO and estado_esq == 'ESTICADO':
-                        estado_esq = 'RECOLHIDO'
-                        contador_esq += 1
-
-                # Lógica do Braço Direito
-                conf_ombro_dir = confiancas[INDICE_OMBRO_DIR]
-                conf_cotovelo_dir = confiancas[INDICE_COTOVELO_DIR]
-                conf_pulso_dir = confiancas[INDICE_PULSO_DIR]
-
-                if conf_ombro_dir > LIMIAR_CONFIANCA_PONTO and conf_cotovelo_dir > LIMIAR_CONFIANCA_PONTO and conf_pulso_dir > LIMIAR_CONFIANCA_PONTO:
-                    ombro_dir = keypoints[INDICE_OMBRO_DIR]
-                    cotovelo_dir = keypoints[INDICE_COTOVELO_DIR]
-                    pulso_dir = keypoints[INDICE_PULSO_DIR]
-                    angulo_dir = calcular_angulo(ombro_dir, cotovelo_dir, pulso_dir)
-                    
-                    # LINHA READICIONADA: Desenha o ângulo do braço direito
-                    cv2.putText(annotated_frame, f"{int(angulo_dir)}", tuple(cotovelo_dir.astype(int)), 
-                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
-                    
-                    if angulo_dir > ANGULO_ESTICADO and estado_dir == 'RECOLHIDO':
-                        estado_dir = 'ESTICADO'
-                    if angulo_dir < ANGULO_RECOLHIDO and estado_dir == 'ESTICADO':
-                        estado_dir = 'RECOLHIDO'
-                        contador_dir += 1
-            except Exception as e:
-                pass
+    try:
+        ret, frame = video.read()
+        if not ret:
+            print("\nFim do vídeo.")
+            break
         
-        # PLACAR E VISUALIZAÇÃO
-        cv2.rectangle(annotated_frame, (0, 0), (600, 80), (20, 20, 20), -1)
-        cv2.putText(annotated_frame, "ESQUERDO", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-        cv2.putText(annotated_frame, str(contador_esq), (50, 65), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
-        cv2.putText(annotated_frame, "DIREITO", (400, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-        cv2.putText(annotated_frame, str(contador_dir), (450, 65), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 3)
-
-        cv2.imshow("Contador de Socos Final - YOLOv8", annotated_frame)
+        frame_id += 1
         
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord('q') or key == 27:
-        break
+        # --- LÓGICA DE OTIMIZAÇÃO ---
+        # Só roda a detecção da IA nos quadros múltiplos da frequência definida
+        if frame_id % FREQUENCIA_IA == 0:
+            result_pose = model_pose(frame, verbose=False)
+            saco_box_detectado = detectar_saco(frame, model_obj)
 
+            # Guarda os resultados mais recentes
+            if result_pose[0].keypoints and len(result_pose[0].keypoints.xy) > 0:
+                keypoints_recentes = result_pose[0].keypoints
+            
+            if saco_box_detectado is not None:
+                saco_box_recente = saco_box_detectado
+        # ----------------------------
+
+        # A lógica de tracking (memória) continua rodando em todos os frames
+        if saco_box_recente is not None:
+             if saco_box_detectado is not None:
+                ultima_posicao_saco = saco_box_detectado
+                frames_sem_deteccao = 0
+             else:
+                frames_sem_deteccao += 1
+        
+        if ultima_posicao_saco is not None and frames_sem_deteccao < LIMITE_FRAMES_PERDIDOS:
+            saco_box = ultima_posicao_saco
+        else:
+            saco_box = None
+            ultima_posicao_saco = None
+
+
+        if saco_box:
+            cor_caixa = (0, 255, 0) if frames_sem_deteccao == 0 else (0, 255, 255)
+            cv2.rectangle(frame, saco_box[:2], saco_box[2:], cor_caixa, 2)
+            cv2.putText(frame, "ALVO", (saco_box[0], saco_box[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, cor_caixa, 2)
+
+        # Se não temos nenhum keypoint recente, pulamos o resto
+        if keypoints_recentes is None:
+            cv2.imshow("Análise de Socos", frame)
+            if cv2.waitKey(1) & 0xFF == 27: break
+            continue
+
+        keypoints = keypoints_recentes.xy[0].cpu().numpy()
+        confs = keypoints_recentes.conf[0].cpu().numpy()
+
+        # --- O RESTO DO CÓDIGO (PROCESSAMENTO E DESENHO) RODA EM TODOS OS FRAMES ---
+        # Isso garante que a parte visual e a lógica de impacto sejam fluidas
+        for lado, (indice_pulso, indice_cotovelo, indice_ombro, cor) in [
+            ("direito", (10, 8, 6, (0, 0, 255))),
+            ("esquerdo", (9, 7, 5, (255, 100, 0)))
+        ]:
+            if max(indice_pulso, indice_cotovelo, indice_ombro) >= len(keypoints):
+                continue
+            
+            # ... (todo o resto da sua lógica de detecção de soco, projeção da mão, etc.)
+            ombro_pos = keypoints[indice_ombro]
+            pulso_conf = confs[indice_pulso]
+            cotovelo_conf = confs[indice_cotovelo]
+
+            if pulso_conf < LIMIAR_CONFIANCA or cotovelo_conf < LIMIAR_CONFIANCA:
+                cv2.putText(frame, f"{lado.upper()}: N/D", (int(ombro_pos[0]-80), int(ombro_pos[1]-20)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (100,100,100), 2)
+                continue
+
+            pulso_pt = keypoints[indice_pulso]
+            cotovelo_pt = keypoints[indice_cotovelo]
+
+            vetor_antebraco = pulso_pt - cotovelo_pt
+            norma_vetor = np.linalg.norm(vetor_antebraco)
+            if norma_vetor > 0:
+                vetor_unitario = vetor_antebraco / norma_vetor
+                ponto_impacto = tuple((pulso_pt + vetor_unitario * DISTANCIA_PROJECAO_MAO).astype(int))
+            else:
+                ponto_impacto = tuple(pulso_pt.astype(int))
+
+            queixo_pt = tuple(keypoints[INDICE_QUEIXO].astype(int))
+            dist_queixo_impacto = np.linalg.norm(np.array(ponto_impacto) - np.array(queixo_pt))
+
+            cv2.circle(frame, ponto_impacto, 9, cor, -1)
+            cv2.line(frame, tuple(pulso_pt.astype(int)), ponto_impacto, cor, 2)
+
+            estado = estado_braços[lado]
+            status_text = "Guarda"
+
+            impacto_detectado = False
+            if saco_box:
+                x1, y1, x2, y2 = saco_box
+                if (x1 - IMPACT_PADDING) < ponto_impacto[0] < (x2 + IMPACT_PADDING) and \
+                   (y1 - IMPACT_PADDING) < ponto_impacto[1] < (y2 + IMPACT_PADDING):
+                    impacto_detectado = True
+
+            if not estado["movendo"] and dist_queixo_impacto > DIST_QUEIXO_INICIO:
+                estado["movendo"] = True
+                estado["inicio"] = time.time()
+                estado["p_inicial"] = ponto_impacto
+                estado["impactado"] = False
+
+            if estado["movendo"] and not estado["impactado"] and impacto_detectado:
+                tempo = time.time() - estado["inicio"]
+                dist_total = np.linalg.norm(np.array(ponto_impacto) - np.array(estado["p_inicial"]))
+                if tempo > 0:
+                    vel = dist_total / tempo
+                    dados_socos.append({"braço": lado, "tempo": tempo, "distancia": dist_total, "velocidade": vel})
+                    print(f"💥 SOCO {lado.upper()} | Tempo: {tempo:.2f}s | Velocidade: {vel:.1f}px/s")
+                estado["impactado"] = True
+
+            if estado["movendo"] and dist_queixo_impacto < DIST_QUEIXO_RESET:
+                estado["movendo"] = False
+
+            if estado["movendo"]:
+                status_text = "Socando"
+                if estado["impactado"]:
+                    status_text = "IMPACTO!"
+
+            text_color = (0, 255, 0) if status_text == "IMPACTO!" else (255, 255, 255)
+            cv2.putText(frame, f"{lado.upper()}: {status_text}", (int(ombro_pos[0]-90), int(ombro_pos[1]-20)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, text_color, 2)
+
+        # --- EXIBIÇÃO ---
+        cv2.imshow("Análise de Socos", frame)
+        # O waitKey controla a velocidade de exibição. 1 é o mais rápido possível.
+        key = cv2.waitKey(1) & 0xFF 
+        if key == 27 or key == ord('q'): break
+
+    except KeyboardInterrupt:
+        print("\nAnálise interrompida pelo usuário.")
+        break
+    except Exception as e:
+        if 'index' in str(e) and 'out of bounds' in str(e): pass
+        else: print(f"Ocorreu um erro inesperado: {e}"); break
+
+# --- FINALIZAÇÃO ---
 video.release()
 cv2.destroyAllWindows()
+# ... (código para salvar o arquivo)
+# (O código para salvar o arquivo permanece o mesmo)
+with open("dados_socos.txt", "w", encoding="utf-8") as f:
+    f.write("=== RESULTADOS DA ANÁLISE DE SOCOS ===\n\n")
+    if not dados_socos:
+        f.write("Nenhum soco foi detectado.\n")
+    else:
+        for i, d in enumerate(dados_socos, 1):
+            f.write(f"Soco {i} ({d['braço'].upper()}):\n")
+            f.write(f"  - Tempo: {d['tempo']:.2f}s\n")
+            f.write(f"  - Distância: {d['distancia']:.1f}px\n")
+            f.write(f"  - Velocidade: {d['velocidade']:.1f}px/s\n\n")
+    f.write("=======================================\n")
+print(f"✅ Análise concluída. {len(dados_socos)} socos registrados em 'dados_socos.txt'")
