@@ -1,4 +1,69 @@
-=== RESULTADOS DA ANÁLISE DE SOCOS ===
+=== RESULTADOS DA ANALISE DE SOCOS ===
 
-Nenhum soco foi detectado.
+Soco 1 (DIREITO):
+  - Tempo: 0.00s
+  - Distancia: 0.0px (0.000 m)
+  - Velocidade: 0.00 km/h (0.0px/s)
+  - Velocidade Normalizada: 0.0px/s
+
+Soco 2 (DIREITO):
+  - Tempo: 0.00s
+  - Distancia: 0.0px (0.000 m)
+  - Velocidade: 0.00 km/h (0.0px/s)
+  - Velocidade Normalizada: 0.0px/s
+
+Soco 3 (ESQUERDO):
+  - Tempo: 0.00s
+  - Distancia: 0.0px (0.000 m)
+  - Velocidade: 0.00 km/h (0.0px/s)
+  - Velocidade Normalizada: 0.0px/s
+
+Soco 4 (ESQUERDO):
+  - Tempo: 0.00s
+  - Distancia: 0.0px (0.000 m)
+  - Velocidade: 0.00 km/h (0.0px/s)
+  - Velocidade Normalizada: 0.0px/s
+
+Soco 5 (DIREITO):
+  - Tempo: 0.00s
+  - Distancia: 0.0px (0.000 m)
+  - Velocidade: 0.00 km/h (0.0px/s)
+  - Velocidade Normalizada: 0.0px/s
+
+Soco 6 (DIREITO):
+  - Tempo: 0.90s
+  - Distancia: 264.9px (0.530 m)
+  - Velocidade: 2.11 km/h (293.6px/s)
+  - Velocidade Normalizada: 293.6px/s
+
+Soco 7 (ESQUERDO):
+  - Tempo: 0.00s
+  - Distancia: 0.0px (0.000 m)
+  - Velocidade: 0.00 km/h (0.0px/s)
+  - Velocidade Normalizada: 0.0px/s
+
+Soco 8 (DIREITO):
+  - Tempo: 4.21s
+  - Distancia: 238.8px (0.478 m)
+  - Velocidade: 0.41 km/h (56.7px/s)
+  - Velocidade Normalizada: 56.7px/s
+
+Soco 9 (ESQUERDO):
+  - Tempo: 0.00s
+  - Distancia: 0.0px (0.000 m)
+  - Velocidade: 0.00 km/h (0.0px/s)
+  - Velocidade Normalizada: 0.0px/s
+
+Soco 10 (DIREITO):
+  - Tempo: 0.00s
+  - Distancia: 0.0px (0.000 m)
+  - Velocidade: 0.00 km/h (0.0px/s)
+  - Velocidade Normalizada: 0.0px/s
+
+Soco 11 (ESQUERDO):
+  - Tempo: 0.00s
+  - Distancia: 0.0px (0.000 m)
+  - Velocidade: 0.00 km/h (0.0px/s)
+  - Velocidade Normalizada: 0.0px/s
+
 =======================================

@@ -5,7 +5,6 @@ import json
 import logging
 from ultralytics import YOLO
 
-
 # === CONFIGURACAO DE LOGS ===
 logging.basicConfig(
     level=logging.INFO,
@@ -17,11 +16,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 # === CONFIGURACOES GLOBAIS ===
-NOME_DO_VIDEO = "videoteste.mp4"
+NOME_DO_VIDEO = "video3.mp4"
 MODELO_POSE = "yolov8m-pose.pt"
-MODELO_OBJETO = "best.pt"
+MODELO_OBJETO = "best_NewData.pt"
 
 # Parametros de otimizacao
 FREQUENCIA_IA = 3
@@ -39,6 +37,9 @@ DISTANCIA_PROJECAO_MAO = 40
 # Tracking
 LIMITE_FRAMES_PERDIDOS = 10
 
+# === CALIBRACAO (IMPORTANTE: ajuste para seu vídeo) ===
+# Exemplo: se 1 px equivale a 0.002 metros (2 mm), defina METROS_POR_PIXEL = 0.002
+METROS_POR_PIXEL = 0.002  # <-- ajuste esse valor conforme medição do seu vídeo
 
 # === FUNCOES DE DETECCAO ===
 def carregar_modelos(caminho_pose, caminho_objeto):
@@ -55,7 +56,7 @@ def carregar_modelos(caminho_pose, caminho_objeto):
 
 def detectar_saco(frame, modelo):
     """Detecta o saco de pancadas no frame."""
-    result_obj = modelo(frame, verbose=False, conf=0.50)
+    result_obj = modelo(frame, verbose=False, conf=0.70)
     for det in result_obj[0].boxes:
         nome = modelo.names[int(det.cls)]
         if "saco_pancada" in nome.lower():
@@ -128,19 +129,32 @@ def verificar_impacto(ponto_impacto, saco_box, padding):
 
 
 def calcular_metricas_soco(tempo_inicio, ponto_inicial, ponto_final, fps):
-    """Calcula as metricas do soco (tempo, distancia, velocidade)."""
+    """
+    Calcula as metricas do soco:
+    - tempo (s)
+    - distancia em px
+    - distancia em metros
+    - velocidade em px/s
+    - velocidade normalizada em px/s (corrigida para 30 fps)
+    - velocidade em km/h
+    """
     tempo = time.time() - tempo_inicio
-    dist_total = np.linalg.norm(np.array(ponto_final) - np.array(ponto_inicial))
+    dist_px = np.linalg.norm(np.array(ponto_final) - np.array(ponto_inicial))
 
     if tempo > 0:
-        vel = dist_total / tempo
-        # Normalizacao por FPS
-        vel_normalizada = vel * (fps / 30.0)
-    else:
-        vel = 0
-        vel_normalizada = 0
+        vel_px_s = dist_px / tempo
+        # Normalizacao por FPS (mantendo compatibilidade com sua lógica anterior)
+        vel_normalizada = vel_px_s * (fps / 30.0)
 
-    return tempo, dist_total, vel, vel_normalizada
+        # Conversao px -> metros -> km/h
+        dist_m = dist_px * METROS_POR_PIXEL
+        vel_m_s = vel_px_s * METROS_POR_PIXEL
+        vel_kmh = vel_m_s * 3.6
+    else:
+        vel_px_s = vel_normalizada = vel_kmh = 0.0
+        dist_m = 0.0
+
+    return tempo, dist_px, dist_m, vel_px_s, vel_normalizada, vel_kmh
 
 
 # === FUNCOES DE PROCESSAMENTO DE SOCO ===
@@ -179,7 +193,7 @@ def processar_soco_braco(
         pulso_pt, cotovelo_pt, DISTANCIA_PROJECAO_MAO
     )
 
-    # Calcular distancia do queixo
+    # Calcular distancia do queixo (em px)
     dist_queixo_impacto = np.linalg.norm(np.array(ponto_impacto) - queixo_pt)
 
     estado = estado_bracos[lado]
@@ -197,22 +211,29 @@ def processar_soco_braco(
 
     # Detectar impacto
     if estado["movendo"] and not estado["impactado"] and impacto_detectado:
-        tempo, dist_total, vel, vel_norm = calcular_metricas_soco(
-            estado["inicio"], estado["p_inicial"], ponto_impacto, fps
-        )
+        (
+            tempo,
+            dist_px,
+            dist_m,
+            vel_px_s,
+            vel_norm,
+            vel_kmh,
+        ) = calcular_metricas_soco(estado["inicio"], estado["p_inicial"], ponto_impacto, fps)
 
         dados_socos.append(
             {
                 "braco": lado,
                 "tempo": tempo,
-                "distancia": dist_total,
-                "velocidade": vel,
-                "velocidade_normalizada": vel_norm,
+                "distancia_px": dist_px,
+                "distancia_m": dist_m,
+                "velocidade_px_s": vel_px_s,
+                "velocidade_normalizada_px_s": vel_norm,
+                "velocidade_kmh": vel_kmh,
             }
         )
 
         logger.info(
-            f"SOCO {lado.upper()} | Tempo: {tempo:.2f}s | Velocidade: {vel:.1f}px/s"
+            f"SOCO {lado.upper()} | Tempo: {tempo:.2f}s | Velocidade: {vel_kmh:.1f} km/h ({vel_px_s:.1f}px/s)"
         )
         estado["impactado"] = True
 
@@ -304,11 +325,9 @@ def salvar_dados_txt(dados_socos, arquivo="dados_socos.txt"):
             for i, d in enumerate(dados_socos, 1):
                 f.write(f"Soco {i} ({d['braco'].upper()}):\n")
                 f.write(f"  - Tempo: {d['tempo']:.2f}s\n")
-                f.write(f"  - Distancia: {d['distancia']:.1f}px\n")
-                f.write(f"  - Velocidade: {d['velocidade']:.1f}px/s\n")
-                f.write(
-                    f"  - Velocidade Normalizada: {d['velocidade_normalizada']:.1f}px/s\n\n"
-                )
+                f.write(f"  - Distancia: {d['distancia_px']:.1f}px ({d['distancia_m']:.3f} m)\n")
+                f.write(f"  - Velocidade: {d['velocidade_kmh']:.2f} km/h ({d['velocidade_px_s']:.1f}px/s)\n")
+                f.write(f"  - Velocidade Normalizada: {d['velocidade_normalizada_px_s']:.1f}px/s\n\n")
         f.write("=======================================\n")
     logger.info(f"Dados salvos em {arquivo}")
 
@@ -431,7 +450,12 @@ def main():
                     frame = desenhar_soco(frame, info_soco, status, ombro_pos)
 
             # Exibir frame
+            # Criar janela ajustável (evita corte e zoom automático)
+            cv2.namedWindow("Analise de Socos", cv2.WINDOW_NORMAL)
+            cv2.resizeWindow("Analise de Socos", frame.shape[1], frame.shape[0])
+
             cv2.imshow("Analise de Socos", frame)
+
             key = cv2.waitKey(1) & 0xFF
             if key == 27 or key == ord("q"):
                 logger.info("\nAnalise interrompida pelo usuario.")
