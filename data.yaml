@@ -1,0 +1,12 @@
+names:
+- saco_pancada
+nc: 1
+roboflow:
+  license: CC BY 4.0
+  project: detector-de-saco-an2uk
+  url: https://universe.roboflow.com/teste-r1etm/detector-de-saco-an2uk/dataset/24
+  version: 24
+  workspace: teste-r1etm
+test: ../test/images
+train: /content/Detector-de-Saco-24/train/images
+val: /content/Detector-de-Saco-24/valid/images

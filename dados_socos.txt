@@ -1,40 +1,90 @@
 === RESULTADOS DA ANALISE DE SOCOS ===
 
-Soco 1 (DIREITO):
-  - Tempo: 0.00s
-  - Distancia: 0.0px (0.000 m)
-  - Velocidade: 0.00 km/h (0.0px/s)
-  - Velocidade Normalizada: 0.0px/s
+Soco 1 (ESQUERDO):
+  - Tempo: 0.41s
+  - Distancia: 76.5px (0.153 m)
+  - Velocidade: 1.35 km/h (186.9px/s)
+  - Velocidade Normalizada: 178.4px/s
+  - Distancia ao centro do saco: 57.7px
+  - Frame de impacto: 13
 
 Soco 2 (DIREITO):
-  - Tempo: 0.00s
-  - Distancia: 0.0px (0.000 m)
-  - Velocidade: 0.00 km/h (0.0px/s)
-  - Velocidade Normalizada: 0.0px/s
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8297648 (fix: melhorias no codigo)
+  - Tempo: 1.13s
+  - Distancia: 379.1px (0.758 m)
+  - Velocidade: 2.42 km/h (336.0px/s)
+  - Velocidade Normalizada: 320.8px/s
+  - Distancia ao centro do saco: 94.5px
+  - Frame de impacto: 19
+<<<<<<< HEAD
+=======
+  - Tempo: 1.74s
+  - Distancia: 29.4px (0.059 m)
+  - Velocidade: 0.12 km/h (16.9px/s)
+  - Velocidade Normalizada: 16.9px/s
+>>>>>>> b24af78 (fix:ajustes no git)
+=======
+>>>>>>> 8297648 (fix: melhorias no codigo)
 
-Soco 3 (ESQUERDO):
-  - Tempo: 0.00s
-  - Distancia: 0.0px (0.000 m)
-  - Velocidade: 0.00 km/h (0.0px/s)
-  - Velocidade Normalizada: 0.0px/s
+Soco 3 (DIREITO):
+  - Tempo: 1.57s
+  - Distancia: 303.6px (0.607 m)
+  - Velocidade: 1.39 km/h (193.1px/s)
+  - Velocidade Normalizada: 184.4px/s
+  - Distancia ao centro do saco: 62.4px
+  - Frame de impacto: 46
 
 Soco 4 (ESQUERDO):
-  - Tempo: 0.00s
-  - Distancia: 0.0px (0.000 m)
-  - Velocidade: 0.00 km/h (0.0px/s)
-  - Velocidade Normalizada: 0.0px/s
+  - Tempo: 0.80s
+  - Distancia: 210.4px (0.421 m)
+  - Velocidade: 1.88 km/h (261.6px/s)
+  - Velocidade Normalizada: 249.7px/s
+  - Distancia ao centro do saco: 8.0px
+  - Frame de impacto: 55
 
 Soco 5 (DIREITO):
-  - Tempo: 0.00s
+  - Tempo: 2.84s
+  - Distancia: 264.8px (0.530 m)
+  - Velocidade: 0.67 km/h (93.2px/s)
+  - Velocidade Normalizada: 89.0px/s
+  - Distancia ao centro do saco: 103.2px
+  - Frame de impacto: 76
+
+Soco 6 (ESQUERDO):
+  - Tempo: 0.76s
+  - Distancia: 110.2px (0.220 m)
+  - Velocidade: 1.04 km/h (144.3px/s)
+  - Velocidade Normalizada: 137.8px/s
+  - Distancia ao centro do saco: 61.4px
+  - Frame de impacto: 121
+
+Soco 7 (DIREITO):
+  - Tempo: 0.88s
+  - Distancia: 263.0px (0.526 m)
+  - Velocidade: 2.15 km/h (299.0px/s)
+  - Velocidade Normalizada: 285.5px/s
+  - Distancia ao centro do saco: 87.1px
+  - Frame de impacto: 127
+
+Soco 8 (ESQUERDO):
+  - Tempo: 0.01s
   - Distancia: 0.0px (0.000 m)
   - Velocidade: 0.00 km/h (0.0px/s)
   - Velocidade Normalizada: 0.0px/s
+<<<<<<< HEAD
+<<<<<<< HEAD
+  - Distancia ao centro do saco: 34.7px
+  - Frame de impacto: 133
+=======
 
 Soco 6 (DIREITO):
-  - Tempo: 0.90s
+  - Tempo: 0.88s
   - Distancia: 264.9px (0.530 m)
-  - Velocidade: 2.11 km/h (293.6px/s)
-  - Velocidade Normalizada: 293.6px/s
+  - Velocidade: 2.17 km/h (301.4px/s)
+  - Velocidade Normalizada: 301.4px/s
 
 Soco 7 (ESQUERDO):
   - Tempo: 0.00s
@@ -43,27 +93,131 @@ Soco 7 (ESQUERDO):
   - Velocidade Normalizada: 0.0px/s
 
 Soco 8 (DIREITO):
-  - Tempo: 4.21s
+  - Tempo: 3.98s
   - Distancia: 238.8px (0.478 m)
-  - Velocidade: 0.41 km/h (56.7px/s)
-  - Velocidade Normalizada: 56.7px/s
+  - Velocidade: 0.43 km/h (60.0px/s)
+  - Velocidade Normalizada: 60.0px/s
+>>>>>>> b24af78 (fix:ajustes no git)
+=======
+  - Distancia ao centro do saco: 34.7px
+  - Frame de impacto: 133
+>>>>>>> 8297648 (fix: melhorias no codigo)
 
 Soco 9 (ESQUERDO):
   - Tempo: 0.00s
   - Distancia: 0.0px (0.000 m)
   - Velocidade: 0.00 km/h (0.0px/s)
   - Velocidade Normalizada: 0.0px/s
+  - Distancia ao centro do saco: 74.0px
+  - Frame de impacto: 152
 
 Soco 10 (DIREITO):
-  - Tempo: 0.00s
-  - Distancia: 0.0px (0.000 m)
-  - Velocidade: 0.00 km/h (0.0px/s)
-  - Velocidade Normalizada: 0.0px/s
+  - Tempo: 3.21s
+  - Distancia: 296.8px (0.594 m)
+  - Velocidade: 0.66 km/h (92.4px/s)
+  - Velocidade Normalizada: 88.2px/s
+  - Distancia ao centro do saco: 75.0px
+  - Frame de impacto: 157
 
 Soco 11 (ESQUERDO):
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8297648 (fix: melhorias no codigo)
+  - Tempo: 0.44s
+  - Distancia: 110.4px (0.221 m)
+  - Velocidade: 1.80 km/h (250.0px/s)
+  - Velocidade Normalizada: 238.7px/s
+  - Distancia ao centro do saco: 52.6px
+  - Frame de impacto: 163
+
+Soco 12 (DIREITO):
+  - Tempo: 3.06s
+  - Distancia: 200.1px (0.400 m)
+  - Velocidade: 0.47 km/h (65.4px/s)
+  - Velocidade Normalizada: 62.4px/s
+  - Distancia ao centro do saco: 78.7px
+  - Frame de impacto: 187
+
+Soco 13 (ESQUERDO):
   - Tempo: 0.00s
   - Distancia: 0.0px (0.000 m)
   - Velocidade: 0.00 km/h (0.0px/s)
   - Velocidade Normalizada: 0.0px/s
+  - Distancia ao centro do saco: 70.1px
+  - Frame de impacto: 200
+
+Soco 14 (DIREITO):
+  - Tempo: 0.75s
+  - Distancia: 231.2px (0.462 m)
+  - Velocidade: 2.21 km/h (306.8px/s)
+  - Velocidade Normalizada: 292.9px/s
+  - Distancia ao centro do saco: 84.4px
+  - Frame de impacto: 205
+
+Soco 15 (ESQUERDO):
+  - Tempo: 0.82s
+  - Distancia: 151.6px (0.303 m)
+  - Velocidade: 1.34 km/h (185.9px/s)
+  - Velocidade Normalizada: 177.5px/s
+  - Distancia ao centro do saco: 56.4px
+  - Frame de impacto: 247
+
+Soco 16 (DIREITO):
+  - Tempo: 1.26s
+  - Distancia: 333.6px (0.667 m)
+  - Velocidade: 1.90 km/h (264.1px/s)
+  - Velocidade Normalizada: 252.1px/s
+  - Distancia ao centro do saco: 65.3px
+  - Frame de impacto: 253
+
+Soco 17 (ESQUERDO):
+  - Tempo: 0.47s
+  - Distancia: 106.8px (0.214 m)
+  - Velocidade: 1.64 km/h (228.5px/s)
+  - Velocidade Normalizada: 218.1px/s
+  - Distancia ao centro do saco: 87.0px
+  - Frame de impacto: 280
+
+Soco 18 (DIREITO):
+  - Tempo: 1.22s
+  - Distancia: 261.4px (0.523 m)
+  - Velocidade: 1.54 km/h (214.1px/s)
+  - Velocidade Normalizada: 204.4px/s
+  - Distancia ao centro do saco: 49.5px
+  - Frame de impacto: 289
+
+Soco 19 (ESQUERDO):
+  - Tempo: 0.39s
+  - Distancia: 125.0px (0.250 m)
+  - Velocidade: 2.33 km/h (323.5px/s)
+  - Velocidade Normalizada: 308.8px/s
+  - Distancia ao centro do saco: 46.5px
+  - Frame de impacto: 328
+
+Soco 20 (DIREITO):
+  - Tempo: 0.85s
+  - Distancia: 187.1px (0.374 m)
+  - Velocidade: 1.59 km/h (221.0px/s)
+  - Velocidade Normalizada: 211.0px/s
+  - Distancia ao centro do saco: 90.0px
+  - Frame de impacto: 334
+
+Soco 21 (ESQUERDO):
+  - Tempo: 0.00s
+  - Distancia: 0.0px (0.000 m)
+  - Velocidade: 0.00 km/h (0.0px/s)
+  - Velocidade Normalizada: 0.0px/s
+  - Distancia ao centro do saco: 58.8px
+  - Frame de impacto: 343
+<<<<<<< HEAD
+=======
+  - Tempo: 0.87s
+  - Distancia: 251.9px (0.504 m)
+  - Velocidade: 2.08 km/h (289.2px/s)
+  - Velocidade Normalizada: 289.2px/s
+>>>>>>> b24af78 (fix:ajustes no git)
+=======
+>>>>>>> 8297648 (fix: melhorias no codigo)
 
 =======================================
